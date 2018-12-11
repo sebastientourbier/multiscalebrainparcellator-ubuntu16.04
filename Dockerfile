@@ -6,9 +6,13 @@ COPY docker/files/neurodebian.gpg /root/.neurodebian.gpg
 
 MAINTAINER Sebastien Tourbier <sebastien.tourbier@alumni.epfl.ch>
 
+
 ## Install miniconda2 and multiscalebrainparcellator dependencies
 
-RUN apt-get update && apt-get -qq -y install npm curl bzip2 xvfb && \
+RUN apt-get update && apt-get -qq -y install npm curl bzip2 && \
+    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    apt-get update && apt-get -qq -y install nodejs && \
+    npm install -g bids-validator && \
     curl -sSL http://neuro.debian.net/lists/xenial.us-ca.full >> /etc/apt/sources.list.d/neurodebian.sources.list && \
     apt-key add /root/.neurodebian.gpg && \
     (apt-key adv --refresh-keys --keyserver hkp://ha.pool.sks-keyservers.net 0xA5D32F012649A5A9 || true) && \
@@ -35,14 +39,17 @@ RUN conda install -y dateutil=2.4.1
 RUN conda install -y certifi=2018.4.16
 #RUN conda install -y patsy=0.4.1
 #RUN conda install -y statsmodels=0.8.0
-RUN conda install -y traitsui=5.1.0
+RUN conda install -y statsmodels=0.8.0
+RUN conda install -y nose=1.3.7
+RUN conda install -y pydot=1.2.3
+# RUN conda install -y traitsui=5.1.0
 RUN conda install -y numpy=1.14
 RUN conda install -y nipype=1.1.3
 RUN conda install -y nibabel=2.3.0
+RUN conda install -y graphviz=2.38.0
 RUN conda install -c aramislab -y pybids
 RUN conda install -c anaconda -y configparser=3.5.0
 RUN conda install -c conda-forge python-dateutil=2.5.3
-RUN conda install -c anaconda argparse=1.3.0
 RUN conda clean --all --yes
 
 # Installing Freesurfer
@@ -85,5 +92,8 @@ ENV PERL5LIB=$MINC_LIB_DIR/perl5/5.8.5 \
     MNI_PERL5LIB=$MINC_LIB_DIR/perl5/5.8.5 \
     PATH=$FREESURFER_HOME/bin:$FSFAST_HOME/bin:$FREESURFER_HOME/tktools:$MINC_BIN_DIR:$PATH
 
-#BIDS validator
-RUN npm install -g bids-validator
+# Add fsaverage
+WORKDIR /opt/freesurfer/subjects/fsaverage
+ADD . /bids_dataset/derivatives/freesurfer/fsaverage
+
+WORKDIR /
