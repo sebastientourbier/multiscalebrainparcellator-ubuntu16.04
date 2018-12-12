@@ -44,7 +44,7 @@ RUN conda install -y nose=1.3.7
 RUN conda install -y pydot=1.2.3
 # RUN conda install -y traitsui=5.1.0
 RUN conda install -y numpy=1.14
-RUN conda install -y nipype=1.1.3
+RUN conda install -y nipype=1.1.6
 RUN conda install -y nibabel=2.3.0
 RUN conda install -y graphviz=2.38.0
 RUN conda install -c aramislab -y pybids
@@ -73,6 +73,8 @@ RUN curl "http://surfer.nmr.mgh.harvard.edu/fswiki/MatlabRuntime?action=AttachFi
 RUN tar xvf runtime2012b.tar.gz
 RUN rm runtime2012b.tar.gz
 # Make FreeSurfer happy
+RUN apt-get install -y -qq tcsh bc
+
 ENV FSL_DIR=/usr/share/fsl/5.0 \
     OS=Linux \
     FS_OVERRIDE=0 \
