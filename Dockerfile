@@ -31,6 +31,7 @@ RUN conda config --add channels aramislab
 
 # RUN conda install -y pyqt=5.6.0
 #RUN conda install -y pyqt=4
+RUN conda install -c aramislab -y ants=2.2.0
 
 RUN conda install -y scipy=1.1.0
 RUN conda install -y sphinx=1.5.1
@@ -51,6 +52,9 @@ RUN conda install -c aramislab -y pybids
 RUN conda install -c anaconda -y configparser=3.5.0
 RUN conda install -c conda-forge python-dateutil=2.5.3
 RUN conda clean --all --yes
+
+#Make ANTs happy
+ENV ANTSPATH=/opt/conda/bin
 
 # Installing Freesurfer
 RUN curl -sSL https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.1/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz | tar zxv --no-same-owner -C /opt \
@@ -93,6 +97,21 @@ ENV SUBJECTS_DIR=$FREESURFER_HOME/subjects \
 ENV PERL5LIB=$MINC_LIB_DIR/perl5/5.8.5 \
     MNI_PERL5LIB=$MINC_LIB_DIR/perl5/5.8.5 \
     PATH=$FREESURFER_HOME/bin:$FSFAST_HOME/bin:$FREESURFER_HOME/tktools:$MINC_BIN_DIR:$PATH
+
+# Installing Neurodebian packages (FSL)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends fsl-core=5.0.9-4~nd16.04+1
+
+#Make FSL happy
+ENV FSLDIR=/usr/share/fsl/5.0 \
+    FSLOUTPUTTYPE=NIFTI_GZ \
+    FSLMULTIFILEQUIT=TRUE \
+    POSSUMDIR=/usr/share/fsl/5.0 \
+    LD_LIBRARY_PATH=/usr/lib/fsl/5.0:$LD_LIBRARY_PATH \
+    FSLTCLSH=/usr/bin/tclsh \
+    FSLWISH=/usr/bin/wish
+
+ENV PATH=/usr/lib/fsl/5.0:$PATH
 
 # Add fsaverage
 WORKDIR /opt/freesurfer/subjects/fsaverage
